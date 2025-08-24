@@ -1,11 +1,27 @@
 import React from "react";
-import { Box, Typography, InputBase } from "@mui/material";
+import {
+  Box,
+  Typography,
+  InputBase,
+  Badge,
+  Popper,
+  Paper,
+  ClickAwayListener,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Link,
+} from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { NavLink as RouterNavLink } from "react-router-dom";
+import { NavLink as RouterNavLink, Link as RouterLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectBasketItems } from "../slices/BasketSlice";
-import { Badge } from "@mui/material";
+import { allGamesForSearch } from "../mockData";
+import { useState, useRef, useEffect } from "react";
+import { ArrowForward } from "@mui/icons-material";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -54,54 +70,160 @@ const NavLink = styled(RouterNavLink)({
 
 const StoreNavigation = () => {
   const basketItems = useSelector(selectBasketItems);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const searchAnchorRef = useRef(null);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setResults([]);
+      setDropdownOpen(false);
+      return;
+    }
+
+    const filtered = allGamesForSearch
+      .filter((game) =>
+        game.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .slice(0, 4);
+
+    setResults(filtered);
+    setDropdownOpen(true);
+  }, [searchQuery]);
+
+  const handleCloseDropdown = () => {
+    setDropdownOpen(false);
+  };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        py: 2,
-        my: 1,
-      }}
-    >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase placeholder="Search store" />
-        </Search>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <NavLink to="/" end>
-            Discover
-          </NavLink>
-          <NavLink to="/browse">Browse</NavLink>
-          <NavLink to="/news">News</NavLink>
-        </Box>
-      </Box>
+    <ClickAwayListener onClickAway={handleCloseDropdown}>
+      <Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            py: 2,
+            my: 1,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Search ref={searchAnchorRef}>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search store"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </Search>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <NavLink to="/" end>
+                Discover
+              </NavLink>
+              <NavLink to="/browse">Browse</NavLink>
+              <NavLink to="/news">News</NavLink>
+            </Box>
+          </Box>
 
-      <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
-        <NavLink
-          to="/wishlist"
-          style={{ textDecoration: "none", color: "inherit" }}
+          <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+            <RouterLink
+              to="/wishlist"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Typography sx={{ color: "#aaaaaa" }}>Wishlist</Typography>
+            </RouterLink>
+            <RouterLink
+              to="/cart"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Badge badgeContent={basketItems.length} color="primary">
+                <Typography sx={{ color: "#aaaaaa" }}>Cart</Typography>
+              </Badge>
+            </RouterLink>
+          </Box>
+        </Box>
+
+        <Popper
+          open={isDropdownOpen}
+          anchorEl={searchAnchorRef.current}
+          placement="bottom-start"
+          disablePortal={false}
+          sx={{ zIndex: 1200, width: searchAnchorRef.current?.offsetWidth }}
         >
-          <Typography sx={{ color: "#aaaaaa", cursor: "pointer" }}>
-            Wishlist
-          </Typography>
-        </NavLink>
-        <NavLink
-          to="/cart"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Badge badgeContent={basketItems.length} color="primary">
-            <Typography sx={{ color: "#aaaaaa", cursor: "pointer" }}>
-              Cart
-            </Typography>
-          </Badge>
-        </NavLink>
+          <Paper
+            sx={{
+              mt: 1,
+              backgroundColor: "#2a2a2a",
+              color: "white",
+              borderRadius: "12px",
+              p: 2,
+            }}
+          >
+            {results.length > 0 ? (
+              <>
+                <Typography variant="overline" color="#aaa" sx={{ px: 2 }}>
+                  Top Results
+                </Typography>
+                <List>
+                  {results.map((game) => (
+                    <RouterLink
+                      key={game.id}
+                      to={`/store/${game.id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                      onClick={handleCloseDropdown}
+                    >
+                      <ListItem button sx={{ borderRadius: "8px" }}>
+                        <ListItemAvatar>
+                          <Avatar
+                            src={game.image || game.thumbnail}
+                            variant="rounded"
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Typography component="span">
+                              {game.title}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="body2" color="#aaa">
+                              {game.category || "Base Game"}
+                            </Typography>
+                          }
+                        />
+                      </ListItem>
+                    </RouterLink>
+                  ))}
+                </List>
+              </>
+            ) : (
+              <RouterLink
+                to="/browse"
+                style={{ textDecoration: "none" }}
+                onClick={handleCloseDropdown}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    color: "white",
+                    p: 2,
+                    borderRadius: "8px",
+                    "&:hover": { backgroundColor: "#333" },
+                  }}
+                >
+                  Browse all titles
+                  <ArrowForward fontSize="small" sx={{ ml: 1 }} />
+                </Box>
+              </RouterLink>
+            )}
+          </Paper>
+        </Popper>
       </Box>
-    </Box>
+    </ClickAwayListener>
   );
 };
 

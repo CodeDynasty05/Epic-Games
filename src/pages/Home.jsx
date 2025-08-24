@@ -10,6 +10,7 @@ import {
   topNewReleases,
   topSellers,
 } from "../mockData";
+import FreeGamesSection from "../components/FreeGamesSection";
 
 const HomePage = () => {
   return (
@@ -19,7 +20,7 @@ const HomePage = () => {
 
       <GamesCarousel title="Discover Something New" games={discoverGames} />
       <GamesCarousel title="Epic Savings Spotlight" games={savingsGames} />
-      <GamesCarousel title="Free Games" games={freeGames} showArrows={false} />
+      <FreeGamesSection title="Free Games" games={freeGames} />
       <GamesCarousel title="Top New Releases" games={topNewReleases} />
       <GamesCarousel title="Top Sellers" games={topSellers} />
     </PageContainer>

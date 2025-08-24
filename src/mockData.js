@@ -1,7 +1,6 @@
-// --- Data for Main Carousel ---
 export const featuredGames = [
   {
-    id: "wuchang-fallen-feathers",
+    id: "wuchang-fallen",
     title: "WUCHANG: Fallen Feathers",
     description:
       "Experience the new action-RPG and overcome the creeping monstrosities lurking in the shadows.",
@@ -44,8 +43,6 @@ export const featuredGames = [
   },
 ];
 
-// --- Data for Horizontal Carousels ---
-
 export const discoverGames = [
   {
     id: "ready-or-not",
@@ -55,7 +52,7 @@ export const discoverGames = [
     price: "$22.49",
   },
   {
-    id: "wuchang-discover",
+    id: "wuchang-fallen",
     title: "WUCHANG: Fallen Feathers",
     category: "Base Game",
     image: "/wuchangthumb.avif",
@@ -270,10 +267,10 @@ export const topSellers = [
 
 export const mostPlayed = [
   {
-    id: "fortnite-played",
+    id: "fortnite",
     title: "Fortnite",
     category: "Free",
-    image: "/played/fortnite.jpg",
+    image: "/played/fortnitethumb.avif",
     price: "Free",
   },
   {
@@ -364,7 +361,7 @@ export const browseGames = [
     price: "$69.99",
   },
   {
-    id: "hidden-folks-browse",
+    id: "hidden-folks",
     title: "Hidden Folks",
     category: "Base Game",
     image: "/browse/hidden-folks.avif",
@@ -481,7 +478,7 @@ export const newsArticles = [
     timestamp: "4d ago",
   },
   {
-    id: "hidden-folks-free",
+    id: "hidden-folks",
     title: "Hidden Folks is free this week on the Epic Games Store for mobile",
     description: "Drop apes, poke crocodiles, and find tiny targets",
     image: "/free/hidden-folks.avif",
@@ -520,3 +517,27 @@ export const newsArticles = [
     timestamp: "11d ago",
   },
 ];
+
+const combinedGames = [
+  ...featuredGames,
+  ...discoverGames,
+  ...browseGames,
+  ...featuredGames,
+  ...freeGames,
+  ...mostPlayed,
+  ...popularGenres,
+  ...savingsGames,
+  ...topNewReleases,
+  ...topSellers,
+  ...topUpcoming,
+];
+
+const uniqueGamesMap = new Map();
+combinedGames.forEach((game) => {
+  if (game && game.title) {
+    const normalizedTitle = game.title.toLowerCase().trim();
+    uniqueGamesMap.set(normalizedTitle, game);
+  }
+});
+
+export const allGamesForSearch = Array.from(uniqueGamesMap.values());
